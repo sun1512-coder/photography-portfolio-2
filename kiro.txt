@@ -1,0 +1,300 @@
+# Requirements Document
+
+## Introduction
+
+A professional, aesthetic photography portfolio website consisting of two pages (Profile and Gallery). The site targets a single owner/photographer who can authenticate to manage content, while visitors can browse, like, and share photos. The design follows a minimal, magazine-style luxury aesthetic using dark tones, clean typography, and smooth animations. All data is persisted client-side via localStorage (or IndexedDB for large photo collections).
+
+## Glossary
+
+- **System**: The photography portfolio website as a whole
+- **Owner**: The authenticated photographer who manages the site content
+- **Visitor**: Any unauthenticated user browsing the site
+- **Profile_Page**: The index.html page displaying the owner's profile and stats
+- **Gallery_Page**: The gallery.html page displaying the photo collection
+- **Auth_Module**: The authentication component handling owner login/logout
+- **Theme_Module**: The dark/light mode toggle component
+- **Photo_Card**: A single photo entry displayed in the gallery grid
+- **Modal**: The full-screen photo detail overlay
+- **EXIF_Reader**: The component that extracts metadata from image files
+- **Storage_Module**: The localStorage/IndexedDB persistence layer
+- **Toast_System**: The notification component for user feedback
+- **Navbar**: The sticky top navigation bar present on both pages
+- **Loading_Screen**: The initial animated splash screen shown on first visit
+
+---
+
+## Requirements
+
+### Requirement 1: Global Navigation
+
+**User Story:** As a visitor, I want a consistent navigation bar on every page, so that I can move between the Profile and Gallery pages easily.
+
+#### Acceptance Criteria
+
+1. THE Navbar SHALL display the owner's name/logo on the left and navigation links ("Profile" | "Gallery") on the right.
+2. THE Navbar SHALL remain fixed at the top of the viewport while the user scrolls.
+3. WHEN the viewport width is below 768px, THE Navbar SHALL replace navigation links with a hamburger menu icon.
+4. WHEN the hamburger menu icon is activated, THE Navbar SHALL display a full-width dropdown menu with all navigation links.
+5. THE Navbar SHALL display a photo count badge on the "Gallery" navigation link reflecting the current number of photos in storage.
+6. WHEN a navigation link is activated, THE System SHALL apply a smooth page transition animation before loading the target page.
+
+---
+
+### Requirement 2: Dark / Light Mode
+
+**User Story:** As a visitor, I want to toggle between dark and light display modes, so that I can view the site comfortably in different lighting conditions.
+
+#### Acceptance Criteria
+
+1. THE Theme_Module SHALL default to dark mode on first visit.
+2. THE Theme_Module SHALL display a fixed toggle button (moon/sun icon) at the top-right corner of every page.
+3. WHEN the toggle button is activated, THE Theme_Module SHALL switch between dark mode and light mode with a CSS transition of no more than 300ms.
+4. THE Theme_Module SHALL persist the user's mode preference in localStorage.
+5. WHEN the page loads, THE Theme_Module SHALL apply the previously saved mode preference from localStorage before rendering visible content.
+6. WHILE in dark mode, THE System SHALL apply the color palette: background #0a0a0a, surface #141414, accent #c9a96e, primary text #f5f5f5, secondary text #888888, border #2a2a2a.
+7. WHILE in light mode, THE System SHALL apply the color palette: background #f9f6f2, surface #ffffff, accent #8B6914, text #1a1a1a.
+
+---
+
+### Requirement 3: Owner Authentication
+
+**User Story:** As the owner, I want to log in with my credentials, so that I can access content management controls across the site.
+
+#### Acceptance Criteria
+
+1. THE Auth_Module SHALL display a fixed lock icon button at the bottom-right corner of every page.
+2. WHEN the lock icon is activated, THE Auth_Module SHALL display a login form requesting email and password.
+3. WHEN the submitted credentials match the hardcoded owner email and password, THE Auth_Module SHALL establish an authenticated session.
+4. IF the submitted credentials do not match the hardcoded values, THEN THE Auth_Module SHALL display an error message within the login form.
+5. WHILE the owner is authenticated, THE System SHALL display a subtle "Owner Mode" badge visible on every page.
+6. WHILE the owner is authenticated, THE System SHALL reveal all content management controls across both pages.
+7. WHEN the owner activates the logout control, THE Auth_Module SHALL terminate the session and hide all management controls.
+8. THE Auth_Module SHALL persist the session state in localStorage so that the session survives page navigation within the same browser tab session.
+
+---
+
+### Requirement 4: Loading Screen
+
+**User Story:** As a visitor, I want an elegant loading animation on first visit, so that the site feels polished and professional.
+
+#### Acceptance Criteria
+
+1. WHEN the site is visited for the first time in a session, THE Loading_Screen SHALL display a full-screen overlay with a logo animation.
+2. WHEN all critical page assets have loaded, THE Loading_Screen SHALL fade out and reveal the page content.
+3. THE Loading_Screen SHALL use the accent color (#c9a96e in dark mode) and the "Playfair Display" font for the logo mark.
+
+---
+
+### Requirement 5: Profile Page — Hero Section
+
+**User Story:** As a visitor, I want to see an impactful hero section on the profile page, so that I immediately understand the photographer's identity and style.
+
+#### Acceptance Criteria
+
+1. THE Profile_Page SHALL display a full-screen hero section as the first visible element.
+2. THE Profile_Page SHALL render the owner's profile photo as a blurred full-screen background within the hero section.
+3. THE Profile_Page SHALL display the owner's profile photo as a centered circular image with a glowing ring border using the accent color.
+4. THE Profile_Page SHALL display the owner's name in "Playfair Display" font at a size no smaller than 48px within the hero section.
+5. THE Profile_Page SHALL display a short tagline below the owner's name within the hero section.
+
+---
+
+### Requirement 6: Profile Page — Info Cards
+
+**User Story:** As a visitor, I want to see the photographer's professional details in a structured layout, so that I can quickly learn about their background and contact them.
+
+#### Acceptance Criteria
+
+1. THE Profile_Page SHALL display owner info cards in a responsive grid below the hero section.
+2. THE Profile_Page SHALL include info cards for: Specialty, Education, Email, Location, Languages, Years of Experience, Camera Gear, Social Media Links, and About Me bio.
+3. THE Profile_Page SHALL render the Email info card as a clickable mailto link.
+4. THE Profile_Page SHALL render Social Media Links as icon links for Instagram, Facebook, and 500px.
+
+---
+
+### Requirement 7: Profile Page — Stats Bar
+
+**User Story:** As a visitor, I want to see animated statistics about the photographer, so that I can appreciate the scope of their work at a glance.
+
+#### Acceptance Criteria
+
+1. THE Profile_Page SHALL display a stats bar containing counters for: Total Photos, Countries Visited, Years Active, and Awards.
+2. WHEN the stats bar enters the viewport, THE Profile_Page SHALL animate each counter from zero to its target value.
+3. THE Storage_Module SHALL derive the Total Photos counter value from the current count of photos stored in localStorage.
+
+---
+
+### Requirement 8: Profile Page — Owner Edit Mode
+
+**User Story:** As the owner, I want to edit my profile information inline, so that I can keep my portfolio up to date without touching code.
+
+#### Acceptance Criteria
+
+1. WHILE the owner is authenticated, THE Profile_Page SHALL display an "Edit Profile" button.
+2. WHEN the "Edit Profile" button is activated, THE Profile_Page SHALL replace each info card with an editable input field pre-populated with the current value.
+3. WHEN the owner submits the edit form, THE Storage_Module SHALL save all updated profile fields to localStorage.
+4. WHEN the owner submits the edit form, THE Profile_Page SHALL exit edit mode and display the updated values.
+5. WHILE the owner is authenticated and in edit mode, THE Profile_Page SHALL display a file upload control for replacing the profile photo.
+6. WHEN a new profile photo file is selected, THE Storage_Module SHALL store the photo as a base64 string in localStorage and THE Profile_Page SHALL update the hero section immediately.
+
+---
+
+### Requirement 9: Gallery Page — Photo Grid
+
+**User Story:** As a visitor, I want to browse photos in a clean grid layout, so that I can explore the photographer's work efficiently.
+
+#### Acceptance Criteria
+
+1. THE Gallery_Page SHALL display photos in a 2-column responsive grid.
+2. THE Gallery_Page SHALL render each Photo_Card with: the image, a title below the image, a category tag badge, and a like button with a count.
+3. WHEN a Photo_Card image is hovered, THE Gallery_Page SHALL apply a zoom effect to the image within the card.
+4. THE Gallery_Page SHALL apply the `loading="lazy"` attribute to all photo images.
+5. WHEN a Photo_Card enters the viewport during scroll, THE Gallery_Page SHALL apply a fade-in or slide-in animation via the Intersection Observer API.
+
+---
+
+### Requirement 10: Gallery Page — Like System
+
+**User Story:** As a visitor, I want to like photos, so that I can express appreciation for images I enjoy.
+
+#### Acceptance Criteria
+
+1. WHEN a visitor activates the like button on a Photo_Card, THE Storage_Module SHALL increment the like count for that photo in localStorage.
+2. WHEN a visitor activates the like button on a Photo_Card a second time, THE Storage_Module SHALL decrement the like count and toggle the liked state.
+3. THE Gallery_Page SHALL display the current like count on each Photo_Card, reflecting the value stored in localStorage.
+
+---
+
+### Requirement 11: Gallery Page — Search and Filter
+
+**User Story:** As a visitor, I want to search and filter the photo gallery, so that I can find specific photos quickly.
+
+#### Acceptance Criteria
+
+1. THE Gallery_Page SHALL display a search input field and a category filter bar above the photo grid.
+2. WHEN text is entered in the search field, THE Gallery_Page SHALL filter the displayed Photo_Cards to those whose title or location contains the search text (case-insensitive).
+3. WHEN a category filter tag is activated, THE Gallery_Page SHALL display only Photo_Cards matching that category.
+4. THE Gallery_Page SHALL provide sort controls for: Newest, Oldest, and Most Liked.
+5. WHEN a sort option is selected, THE Gallery_Page SHALL reorder the displayed Photo_Cards accordingly without a full page reload.
+
+---
+
+### Requirement 12: Photo Detail Modal
+
+**User Story:** As a visitor, I want to view a photo in full detail, so that I can appreciate the image and learn about its technical metadata.
+
+#### Acceptance Criteria
+
+1. WHEN a Photo_Card is activated, THE Modal SHALL open as a full-screen overlay.
+2. THE Modal SHALL display the large photo on the left and a details panel on the right.
+3. WHEN a photo file contains EXIF data, THE EXIF_Reader SHALL extract and THE Modal SHALL display: Camera/Device, Lens, ISO, Shutter Speed, Aperture, GPS Location, Date Taken, Color Profile, White Balance, Resolution, and File Size.
+4. IF a photo file does not contain EXIF data, THEN WHILE the owner is authenticated, THE Modal SHALL display editable input fields for manual metadata entry.
+5. THE Modal SHALL display "Previous" and "Next" navigation controls to browse photos without closing the modal.
+6. WHEN the left arrow key is pressed while the Modal is open, THE Modal SHALL navigate to the previous photo.
+7. WHEN the right arrow key is pressed while the Modal is open, THE Modal SHALL navigate to the next photo.
+8. WHEN the Escape key is pressed while the Modal is open, THE Modal SHALL close.
+
+---
+
+### Requirement 13: Photo Detail Modal — Sharing
+
+**User Story:** As a visitor, I want to share photos from the modal, so that I can show the photographer's work to others.
+
+#### Acceptance Criteria
+
+1. THE Modal SHALL display share buttons for Facebook, WhatsApp, and an Instagram copy-link option.
+2. WHEN the "Copy Link" button is activated, THE Modal SHALL copy the photo's direct URL to the clipboard and THE Toast_System SHALL display a "Copied!" notification.
+3. WHERE the owner has enabled downloads, THE Modal SHALL display a "Download" button that initiates a file download of the photo.
+
+---
+
+### Requirement 14: Gallery Page — Owner Upload and Management
+
+**User Story:** As the owner, I want to upload, edit, and delete photos from the gallery, so that I can manage my portfolio content.
+
+#### Acceptance Criteria
+
+1. WHILE the owner is authenticated, THE Gallery_Page SHALL display an upload button at the top of the gallery.
+2. WHEN the upload button is activated, THE Gallery_Page SHALL display an upload interface supporting both drag-and-drop and file picker selection.
+3. WHEN one or more image files are submitted via the upload interface, THE Storage_Module SHALL store each photo (as base64 or IndexedDB entry) along with its metadata and THE Gallery_Page SHALL add the new Photo_Cards to the grid.
+4. WHILE the owner is authenticated, THE Gallery_Page SHALL display "Edit" and "Delete" controls on each Photo_Card.
+5. WHEN the "Delete" control on a Photo_Card is activated, THE Storage_Module SHALL remove the photo and its metadata from storage and THE Gallery_Page SHALL remove the Photo_Card from the grid.
+6. WHILE the owner is authenticated, THE Gallery_Page SHALL display a "Bulk Delete" mode toggle.
+7. WHEN bulk delete mode is active, THE Gallery_Page SHALL allow the owner to select multiple Photo_Cards and delete them in a single action.
+8. WHILE the owner is authenticated, THE Gallery_Page SHALL support drag-and-drop reordering of Photo_Cards, and THE Storage_Module SHALL persist the new order.
+9. WHEN a gallery management action completes, THE Toast_System SHALL display a relevant notification (e.g., "Photo uploaded!", "Photo deleted!").
+
+---
+
+### Requirement 15: Toast Notification System
+
+**User Story:** As a user, I want brief notifications for actions I perform, so that I receive clear feedback without interrupting my workflow.
+
+#### Acceptance Criteria
+
+1. THE Toast_System SHALL display notifications as brief overlay messages that auto-dismiss after 3 seconds.
+2. THE Toast_System SHALL support notification types: success, error, and info.
+3. WHEN multiple notifications are triggered in quick succession, THE Toast_System SHALL stack them vertically without overlap.
+
+---
+
+### Requirement 16: Scroll Animations
+
+**User Story:** As a visitor, I want content to animate into view as I scroll, so that the browsing experience feels dynamic and engaging.
+
+#### Acceptance Criteria
+
+1. THE System SHALL use the Intersection Observer API to detect when elements enter the viewport.
+2. WHEN a Photo_Card enters the viewport, THE Gallery_Page SHALL apply a fade-in or slide-up animation to the card.
+3. WHEN an info card on the Profile_Page enters the viewport, THE Profile_Page SHALL apply a fade-in animation to the card.
+
+---
+
+### Requirement 17: SEO and Metadata
+
+**User Story:** As the owner, I want the site to have proper SEO and Open Graph tags, so that it appears correctly in search results and social media previews.
+
+#### Acceptance Criteria
+
+1. THE System SHALL include standard SEO meta tags: description, keywords, and author on every page.
+2. THE System SHALL include Open Graph meta tags: og:title, og:description, og:image, and og:url on every page.
+3. THE System SHALL include a favicon derived from the owner's initials.
+
+---
+
+### Requirement 18: Utility Features
+
+**User Story:** As a visitor, I want quality-of-life features like a back-to-top button and a 404 page, so that navigation is smooth and errors are handled gracefully.
+
+#### Acceptance Criteria
+
+1. THE System SHALL display a "Back to Top" floating button that becomes visible after the user scrolls down more than 300px.
+2. WHEN the "Back to Top" button is activated, THE System SHALL scroll the page to the top with a smooth animation.
+3. THE System SHALL include a custom 404 error page (404.html) styled consistently with the rest of the site.
+4. THE System SHALL display a footer on every page containing copyright text, social media links, and a contact email.
+
+---
+
+### Requirement 19: Responsive Design
+
+**User Story:** As a visitor on a mobile device, I want the site to be fully usable on small screens, so that I can browse the portfolio from any device.
+
+#### Acceptance Criteria
+
+1. THE System SHALL be fully functional and visually coherent at viewport widths from 320px to 2560px.
+2. WHEN the viewport width is below 768px, THE Gallery_Page SHALL switch the photo grid to a single-column layout.
+3. WHEN the viewport width is below 768px, THE Modal SHALL stack the photo and details panel vertically.
+4. THE System SHALL use relative units (rem, %, vw/vh) and CSS media queries to achieve responsive layouts.
+
+---
+
+### Requirement 20: Data Persistence
+
+**User Story:** As the owner, I want all profile data, photos, and settings to persist between sessions, so that I don't lose my content when I close the browser.
+
+#### Acceptance Criteria
+
+1. THE Storage_Module SHALL store owner profile fields, photo metadata, like counts, theme preference, and session state in localStorage.
+2. WHERE the total size of stored photos exceeds localStorage capacity, THE Storage_Module SHALL use IndexedDB to store photo binary data.
+3. WHEN the page loads, THE Storage_Module SHALL restore all persisted data and THE System SHALL render the page using that data.
+4. THE Storage_Module SHALL store photos as base64-encoded strings when using localStorage, and as Blob or ArrayBuffer entries when using IndexedDB.
